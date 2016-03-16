@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -35,6 +36,7 @@ import java.util.List;
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
+    private static final String TAG = ForecastFragment.class.getSimpleName();
 
     private ArrayAdapter<String> mForecastAdapter;
     private ArrayList<String> data = new ArrayList<String>();
@@ -45,7 +47,23 @@ public class ForecastFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate()");
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart()");
+        updateWeather();
+    }
+
+    private void updateWeather() {
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        String location = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.pref_location_key),
+                        getString(R.string.pref_location_default));
+        weatherTask.execute(location);
     }
 
     @Override
@@ -65,6 +83,7 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView()");
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         List<String> data = new ArrayList<String>();
 
@@ -85,7 +104,6 @@ public class ForecastFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        new FetchWeatherTask().execute("94043");
         return rootView;
     }
 
@@ -120,7 +138,7 @@ public class ForecastFragment extends Fragment {
                 final String FORMAT_PARAM = "mode";
                 final String UNITS_PARAM = "unit";
                 final String DAYS_PARAM = "cnt";
-                final String APP_ID = "APPID";
+                final String APPID_PARAM = "APPID";
                 String apiKey = "&APPID=" + BuildConfig.OPEN_WEATHER_MAP_API_KEY;
 
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
@@ -128,7 +146,7 @@ public class ForecastFragment extends Fragment {
                         .appendQueryParameter(FORMAT_PARAM, format)
                         .appendQueryParameter(UNITS_PARAM, units)
                         .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                        .appendQueryParameter(APP_ID, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
+                        .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
                         .build();
                 URL url = new URL(builtUri.toString());
                 // Create the request to OpenWeatherMap, and open the connection
@@ -175,7 +193,6 @@ public class ForecastFragment extends Fragment {
                 }
             }
             if (forecastJsonStr != null) {
-                Log.d("xiaojunzhou", forecastJsonStr);
                 try {
                     return getWeatherDataFromJson(forecastJsonStr, numDays);
                 } catch (JSONException e) {
@@ -187,7 +204,6 @@ public class ForecastFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String[] result) {
-            Log.d("xiaojunzhou", "onPostExecute");
             if (result != null) {
                 mForecastAdapter.clear();
                 for (String s : result) {
@@ -279,14 +295,8 @@ public class ForecastFragment extends Fragment {
                 highAndLow = formatHighLows(high, low);
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
-
-            for (String s : resultStrs) {
-                Log.v("xiaojunzhou", "Forecast entry: " + s);
-            }
             return resultStrs;
         }
     }
-
-
 }
 
