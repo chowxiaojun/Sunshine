@@ -13,14 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class DetailActivityFragment extends Fragment {
+public class DetailFragment extends Fragment {
 
-    private static final String TAG = DetailActivityFragment.class.getSimpleName();
+    private static final String TAG = DetailFragment.class.getSimpleName();
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
     private String mForecastStr;
 
-    public DetailActivityFragment() {
+    public DetailFragment() {
         // Required empty public constructor
     }
 
