@@ -37,6 +37,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.xiroid.sunshine.app.MainActivity" />
         </activity>
+        
+        <provider
+            android:authorities="com.xiroid.sunshine.app"
+            android:name=".data.WeatherProvider">
+
+        </provider>
     </application>
 
 </manifest>
