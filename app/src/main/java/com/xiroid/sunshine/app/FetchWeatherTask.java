@@ -1,13 +1,19 @@
 package com.xiroid.sunshine.app;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+
+import com.xiroid.sunshine.app.data.WeatherContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,48 +26,288 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Vector;
 
 public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
-    private static final String TAG = FetchWeatherTask.class.getSimpleName();
-    private Context context;
-    private ArrayAdapter<String> adapter;
+    private final String TAG = FetchWeatherTask.class.getSimpleName();
 
-    public FetchWeatherTask(Context context, ArrayAdapter<String> adapter) {
-        this.context = context;
-        this.adapter = adapter;
+    private ArrayAdapter<String> mForecastAdapter;
+    private final Context mContext;
+
+    public FetchWeatherTask(Context context, ArrayAdapter<String> forecastAdapter) {
+        mContext = context;
+        mForecastAdapter = forecastAdapter;
+
     }
+
+    /**
+     * 转换可读性的日期
+     * @param time
+     * @return
+     */
+    private String getReadableDateString(long time) {
+        Date date = new Date(time);
+        SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
+        return format.format(date).toString();
+    }
+
+    /**
+     * 根据用户设置显示不同单位的温度
+     * @param high
+     * @param low
+     * @return
+     */
+    private String formatHighLows(double high, double low) {
+        SharedPreferences sharedPrefs =
+                PreferenceManager.getDefaultSharedPreferences(mContext);
+        String unitType = sharedPrefs.getString(
+                mContext.getString(R.string.pref_units_key),
+                mContext.getString(R.string.pref_units_metric));
+
+        if (unitType.equals(mContext.getString(R.string.pref_units_imperial))) {
+            high = (high * 1.8) + 32;
+            low = (low * 1.8) + 32;
+        } else if (!unitType.equals(mContext.getString(R.string.pref_units_metric))) {
+            Log.d(TAG, "Unit type not found: " + unitType);
+        }
+
+        long roundedHigh = Math.round(high);
+        long roundedLow = Math.round(low);
+
+        String highLowStr = roundedHigh + "/" + roundedLow;
+        return highLowStr;
+    }
+
+    /**
+     * 增加城市到数据库中
+     * @param locationSetting
+     * @param cityName
+     * @param lat
+     * @param lon
+     * @return 返回该记录在数据表中的函数
+     */
+    long addLocation(String locationSetting, String cityName, double lat, double lon) {
+        long locationId;
+
+        Cursor locationCursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI, // URI
+                new String[]{WeatherContract.LocationEntry._ID}, // 返回记录中包含的列
+                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?", // 查询条件
+                new String[]{locationSetting}, // 查询条件参数
+                null); // 排序
+        try {
+            if (locationCursor != null && locationCursor.moveToFirst()) {
+                int locationIdIndex = locationCursor.getColumnIndex(WeatherContract.LocationEntry._ID);
+                locationId = locationCursor.getLong(locationIdIndex);
+            } else {
+                ContentValues locationValues = new ContentValues();
+                locationValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
+                locationValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
+                locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
+                locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
+
+                Uri insertedUri = mContext.getContentResolver().insert(
+                        WeatherContract.LocationEntry.CONTENT_URI,
+                        locationValues
+                );
+
+                locationId = ContentUris.parseId(insertedUri);
+            }
+
+        } finally {
+            if (locationCursor != null) {
+                locationCursor.close();
+            }
+        }
+
+        return locationId;
+    }
+
+    String[] convertContentValuesToUXFormat(Vector<ContentValues> cvv) {
+        String[] resultStrs = new String[cvv.size()];
+        for (int i = 0; i < cvv.size(); i++) {
+            ContentValues weatherValues = cvv.elementAt(i);
+            String highAndLow = formatHighLows(
+                    weatherValues.getAsDouble(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP),
+                    weatherValues.getAsDouble(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP));
+            resultStrs[i] = getReadableDateString(
+                    weatherValues.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE)) +
+                    " - " + weatherValues.getAsString(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC) +
+                    " - " + highAndLow;
+        }
+        return resultStrs;
+    }
+
+    /**
+     * 从JSON数据中解析天气/城市信息
+     * @param forecastJsonStr
+     * @param locationSetting
+     * @return
+     * @throws JSONException
+     */
+    private String[] getWeatherDataFromJson(String forecastJsonStr,
+                                            String locationSetting)
+            throws JSONException {
+        // 以下都是JSON中的key
+        // 位置信息
+        final String OWM_CITY = "city";
+        final String OWM_CITY_NAME = "name";
+        final String OWM_COORD = "coord";
+
+        // 位置经纬度
+        final String OWM_LATITUDE = "lat";
+        final String OWM_LONGITUDE = "lon";
+
+        // 天气信息，
+        final String OWM_LIST = "list";
+
+        final String OWM_PRESSURE = "pressure";
+        final String OWM_HUMIDITY = "humidity";
+        final String OWM_WINDSPEED = "speed";
+        final String OWM_WIND_DIRECTION = "deg";
+
+        final String OWM_TEMPERATURE = "temp";
+        final String OWM_MAX = "max";
+        final String OWM_MIN = "min";
+
+        final String OWM_WEATHER = "weather";
+        final String OWM_DESCRIPTION = "main";
+        final String OWM_WEATHER_ID = "id";
+
+        try {
+            JSONObject forecastJson = new JSONObject(forecastJsonStr);
+            JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
+
+            JSONObject cityJson = forecastJson.getJSONObject(OWM_CITY);
+            String cityName = cityJson.getString(OWM_CITY_NAME);
+
+            JSONObject cityCoord = cityJson.getJSONObject(OWM_COORD);
+            double cityLatitude = cityCoord.getDouble(OWM_LATITUDE);
+            double cityLongitude = cityCoord.getDouble(OWM_LONGITUDE);
+
+            long locationId = addLocation(locationSetting, cityName, cityLatitude, cityLongitude);
+
+            Vector<ContentValues> cVVector = new Vector<ContentValues>(weatherArray.length());
+
+
+            Time dayTime = new Time();
+            dayTime.setToNow();
+
+            int julianStartDay = Time.getJulianDay(System.currentTimeMillis(), dayTime.gmtoff);
+
+            dayTime = new Time();
+
+            for (int i = 0; i < weatherArray.length(); i++) {
+                long dateTime;
+                double pressure;
+                int humidity;
+                double windSpeed;
+                double windDirection;
+
+                double high;
+                double low;
+
+                String description;
+                int weatherId;
+
+                JSONObject dayForecast = weatherArray.getJSONObject(i);
+
+                dateTime = dayTime.setJulianDay(julianStartDay + i);
+
+                pressure = dayForecast.getDouble(OWM_PRESSURE);
+                humidity = dayForecast.getInt(OWM_HUMIDITY);
+                windSpeed = dayForecast.getDouble(OWM_WINDSPEED);
+                windDirection = dayForecast.getDouble(OWM_WIND_DIRECTION);
+
+                JSONObject weatherObject =
+                        dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
+                description = weatherObject.getString(OWM_DESCRIPTION);
+                weatherId = weatherObject.getInt(OWM_WEATHER_ID);
+
+                JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
+                high = temperatureObject.getDouble(OWM_MAX);
+                low = temperatureObject.getDouble(OWM_MIN);
+
+                ContentValues weatherValues = new ContentValues();
+
+                weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationId);
+                weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATE, dateTime);
+                weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, humidity);
+                weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, pressure);
+                weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, windSpeed);
+                weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, windDirection);
+                weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, high);
+                weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, low);
+                weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, description);
+                weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, weatherId);
+
+                cVVector.add(weatherValues);
+            }
+
+            // 添加天气数据到数据库中，批量插入
+            if (cVVector.size() > 0) {
+                ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                cVVector.toArray(cvArray);
+                mContext.getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
+            }
+
+            // 按日期升序
+            String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+            Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+                    locationSetting, System.currentTimeMillis());
+
+            Cursor cur = mContext.getContentResolver().query(weatherForLocationUri,
+                    null, null, null, sortOrder);
+
+            cVVector = new Vector<ContentValues>(cur.getCount());
+            if (cur.moveToFirst()) {
+                do {
+                    ContentValues cv = new ContentValues();
+                    DatabaseUtils.cursorRowToContentValues(cur, cv);
+                    cVVector.add(cv);
+                } while (cur.moveToNext());
+            }
+
+            Log.d(TAG, "FetchWeatherTask Complete. " + cVVector.size() + " Inserted");
+
+            String[] resultStrs = convertContentValuesToUXFormat(cVVector);
+            return resultStrs;
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     @Override
     protected String[] doInBackground(String... params) {
 
-        if (params.length <= 0) {
+        // 传入城市的 zip code
+        if (params.length == 0) {
             return null;
         }
+        String locationQuery = params[0];
 
-        // These two need to be declared outside the try/catch
-        // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
-        // Will contain the raw JSON response as a string.
         String forecastJsonStr = null;
 
         String format = "json";
         String units = "metric";
-        int numDays = 7;
+        int numDays = 14;
 
         try {
-            // Construct the URL for the OpenWeatherMap query
-            // Possible parameters are available at OWM's forecast API page, at
             // http://openweathermap.org/API#forecast
             final String FORECAST_BASE_URL =
-                    "http://api.openweathermap.org/data/2.5/forecast/daily";
+                    "http://api.openweathermap.org/data/2.5/forecast/daily?";
             final String QUERY_PARAM = "q";
             final String FORMAT_PARAM = "mode";
-            final String UNITS_PARAM = "unit";
+            final String UNITS_PARAM = "units";
             final String DAYS_PARAM = "cnt";
             final String APPID_PARAM = "APPID";
-            String apiKey = "&APPID=" + BuildConfig.OPEN_WEATHER_MAP_API_KEY;
 
             Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                     .appendQueryParameter(QUERY_PARAM, params[0])
@@ -72,37 +318,30 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                     .build();
 
             URL url = new URL(builtUri.toString());
-            // Create the request to OpenWeatherMap, and open the connection
+
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
-                // Nothing to do.
+                return null;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
             String line;
             while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
-                buffer.append(line + "\n");
+                buffer.append(line);
             }
 
             if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                forecastJsonStr = null;
+                return null;
             }
             forecastJsonStr = buffer.toString();
         } catch (IOException e) {
-            Log.e("PlaceholderFragment", "Error ", e);
-            // If the code didn't successfully get the weather data, there's no point in attempting
-            // to parse it.
-            forecastJsonStr = null;
+            Log.e(TAG, "Error ", e);
+            return null;
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -111,126 +350,27 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 try {
                     reader.close();
                 } catch (final IOException e) {
-                    Log.e("PlaceholderFragment", "Error closing stream", e);
+                    Log.e(TAG, "Error closing stream", e);
                 }
             }
         }
-        if (forecastJsonStr != null) {
-            try {
-                return getWeatherDataFromJson(forecastJsonStr, numDays);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+
+        try {
+            return getWeatherDataFromJson(forecastJsonStr, locationQuery);
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            e.printStackTrace();
         }
         return null;
     }
 
     @Override
     protected void onPostExecute(String[] result) {
-        if (result != null) {
-            adapter.clear();
-            for (String s : result) {
-                adapter.add(s);
-                adapter.notifyDataSetChanged();
+        if (result != null && mForecastAdapter != null) {
+            mForecastAdapter.clear();
+            for (String dayForecastStr : result) {
+                mForecastAdapter.add(dayForecastStr);
             }
         }
-    }
-
-    /**
-     * format date
-     */
-    private String getReadableDateString(long time) {
-        SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
-        return shortenedDateFormat.format(time);
-    }
-
-    /**
-     * format temp high/lows
-     */
-    private String formatHighLows(double high, double low, String unitType) {
-        if (unitType.equals(context.getString(R.string.pref_units_imperial))) {
-            high = (high * 1.8) + 32;
-            low = (low * 1.8) + 32;
-        } else if (!unitType.equals(context.getString(R.string.pref_units_metric))) {
-            Log.d(TAG, "Unit type not found: " + unitType);
-        }
-
-        // For presentation, assume the user doesn't care about tenths of a degree.
-        long roundedHigh = Math.round(high);
-        long roundedLow = Math.round(low);
-
-        String highLowStr = roundedHigh + "/" + roundedLow;
-        return highLowStr;
-    }
-
-    /**
-     * parse the data form weather api
-     */
-    private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
-            throws JSONException {
-        // These are the names of the JSON objects that need to be extracted.
-        final String OWM_LIST = "list";
-        final String OWM_WEATHER = "weather";
-        final String OWM_TEMPERATURE = "temp";
-        final String OWM_MAX = "max";
-        final String OWM_MIN = "min";
-        final String OWM_DESCRIPTION = "main";
-
-        JSONObject forecastJson = new JSONObject(forecastJsonStr);
-        JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
-
-        // OWM returns daily forecasts based upon the local time of the city that is being
-        // asked for, which means that we need to know the GMT offset to translate this data
-        // properly.
-
-        // Since this data is also sent in-order and the first day is always the
-        // current day, we're going to take advantage of that to get a nice
-        // normalized UTC date for all of our weather.
-
-        Time dayTime = new Time();
-        dayTime.setToNow();
-
-        // we start at the day returned by local time. Otherwise this is a mess.
-        int julianStartDay = Time.getJulianDay(System.currentTimeMillis(), dayTime.gmtoff);
-
-        // now we work exclusively in UTC
-        dayTime = new Time();
-
-        String[] resultStrs = new String[numDays];
-
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String unitType = sharedPrefs.getString(context.getString(R.string.pref_units_key),
-                context.getString(R.string.pref_units_metric));
-        for (int i = 0; i < weatherArray.length(); i++) {
-            // For now, using the format "Day, description, hi/low"
-            String day;
-            String description;
-            String highAndLow;
-
-            // Get the JSON object representing the day
-            JSONObject dayForecast = weatherArray.getJSONObject(i);
-
-            // The date/time is returned as a long.  We need to convert that
-            // into something human-readable, since most people won't read "1400356800" as
-            // "this saturday".
-            long dateTime;
-            // Cheating to convert this to UTC time, which is what we want anyhow
-            dateTime = dayTime.setJulianDay(julianStartDay + i);
-            day = getReadableDateString(dateTime);
-
-            // description is in a child array called "weather", which is 1 element long.
-            JSONObject weatherObject = dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
-            description = weatherObject.getString(OWM_DESCRIPTION);
-
-            // Temperatures are in a child object called "temp".  Try not to name variables
-            // "temp" when working with temperature.  It confuses everybody.
-            JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
-            double high = temperatureObject.getDouble(OWM_MAX);
-            double low = temperatureObject.getDouble(OWM_MIN);
-
-            highAndLow = formatHighLows(high, low, unitType);
-            resultStrs[i] = day + " - " + description + " - " + highAndLow;
-        }
-        return resultStrs;
     }
 }
