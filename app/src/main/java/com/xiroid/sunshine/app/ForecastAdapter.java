@@ -39,36 +39,54 @@ public class ForecastAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         int viewType = getItemViewType(cursor.getPosition());
         int layoutId = (viewType == VIEW_TYPE_TODAY ? R.layout.list_item_forecast_today : R.layout.list_item_forecast);
-
-        return LayoutInflater.from(context).inflate(layoutId, parent, false);
+        View rootView = LayoutInflater.from(context).inflate(layoutId, parent, false);
+        rootView.setTag(new ViewHolder(rootView));
+        return rootView;
     }
 
-    /*
-        This is where we fill-in the views with the contents of the cursor.
+    /**
+     * 关于ViewHolder模式：http://developer.android.com/training/improving-layouts/smooth-scrolling.html
+     * 设置列表项
+     * @param view
+     * @param context
+     * @param cursor
      */
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         // Read weather icon ID from cursor
+
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
         int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_ID);
-        ImageView iconView = (ImageView) view.findViewById(R.id.list_item_icon);
-        iconView.setImageResource(R.mipmap.ic_launcher);
+        viewHolder.iconView.setImageResource(R.mipmap.ic_launcher);
 
         long dateInMillis = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
-        TextView dateView = (TextView) view.findViewById(R.id.list_item_date_textview);
-        dateView.setText(Utility.getFriendlyDayString(context, dateInMillis));
+        viewHolder.dateView.setText(Utility.getFriendlyDayString(context, dateInMillis));
 
         String description = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
-        TextView descriptionView = (TextView) view.findViewById(R.id.list_item_forecast_textview);
-        descriptionView.setText(description);
+        viewHolder.descriptionView.setText(description);
 
         boolean isMetric = Utility.isMetric(context);
 
         double high = cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP);
-        TextView highView = (TextView) view.findViewById(R.id.list_item_high_textview);
-        highView.setText(Utility.formatTemperature(high, isMetric));
+        viewHolder.highView.setText(Utility.formatTemperature(high, isMetric));
 
         double low = cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP);
-        TextView lowView = (TextView) view.findViewById(R.id.list_item_low_textview);
-        lowView.setText(Utility.formatTemperature(low, isMetric));
+        viewHolder.lowView.setText(Utility.formatTemperature(low, isMetric));
+    }
+
+    public static class ViewHolder {
+        public final ImageView iconView;
+        public final TextView dateView;
+        public final TextView descriptionView;
+        public final TextView highView;
+        public final TextView lowView;
+
+        public ViewHolder(View view) {
+            iconView = (ImageView) view.findViewById(R.id.list_item_icon);
+            dateView = (TextView) view.findViewById(R.id.list_item_date_textview);
+            descriptionView = (TextView) view.findViewById(R.id.list_item_forecast_textview);
+            highView = (TextView) view.findViewById(R.id.list_item_high_textview);
+            lowView = (TextView) view.findViewById(R.id.list_item_low_textview);
+        }
     }
 }
