@@ -46,13 +46,13 @@
             android:id="@+id/list_item_high_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="18℃"></TextView>
+            android:text="18"></TextView>
 
         <TextView
             android:id="@+id/list_item_low_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="8℃"></TextView>
+            android:text="8"></TextView>
     </LinearLayout>
 
 </LinearLayout>

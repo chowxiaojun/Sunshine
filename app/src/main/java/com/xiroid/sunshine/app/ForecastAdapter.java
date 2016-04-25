@@ -56,8 +56,13 @@ public class ForecastAdapter extends CursorAdapter {
         // Read weather icon ID from cursor
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-        int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_ID);
-        viewHolder.iconView.setImageResource(R.mipmap.ic_launcher);
+        int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
+        int viewType = getItemViewType(cursor.getPosition());
+        if (viewType == VIEW_TYPE_TODAY) {
+            viewHolder.iconView.setImageResource(R.drawable.art_clear);
+        } else if (viewType == VIEW_TYPE_FUTURE_DAY) {
+            viewHolder.iconView.setImageResource(R.drawable.ic_clear);
+        }
 
         long dateInMillis = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
         viewHolder.dateView.setText(Utility.getFriendlyDayString(context, dateInMillis));
@@ -65,13 +70,11 @@ public class ForecastAdapter extends CursorAdapter {
         String description = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
         viewHolder.descriptionView.setText(description);
 
-        boolean isMetric = Utility.isMetric(context);
-
         double high = cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP);
-        viewHolder.highView.setText(Utility.formatTemperature(context, high, isMetric));
+        viewHolder.highView.setText(Utility.formatTemperature(context, high));
 
         double low = cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP);
-        viewHolder.lowView.setText(Utility.formatTemperature(context, low, isMetric));
+        viewHolder.lowView.setText(Utility.formatTemperature(context, low));
     }
 
     public static class ViewHolder {
