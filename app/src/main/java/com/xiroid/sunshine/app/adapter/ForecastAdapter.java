@@ -63,9 +63,11 @@ public class ForecastAdapter extends CursorAdapter {
         int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
         int viewType = getItemViewType(cursor.getPosition());
         if (viewType == VIEW_TYPE_TODAY) {
-            viewHolder.iconView.setImageResource(R.drawable.art_clear);
+            int resId = Utility.getArtResourceForWeatherCondition(weatherId);
+            viewHolder.iconView.setImageResource(resId);
         } else if (viewType == VIEW_TYPE_FUTURE_DAY) {
-            viewHolder.iconView.setImageResource(R.drawable.ic_clear);
+            int resId = Utility.getIconResourceForWeatherCondition(weatherId);
+            viewHolder.iconView.setImageResource(resId);
         }
 
         long dateInMillis = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);

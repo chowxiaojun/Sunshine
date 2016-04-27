@@ -159,8 +159,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             return;
         }
         int weatherId = cursor.getInt(COL_WEATHER_CONDITION_ID);
+        int resId = Utility.getArtResourceForWeatherCondition(weatherId);
         // Use placeholder Image
-        iconView.setImageResource(R.drawable.art_clear);
+        iconView.setImageResource(resId);
 
         String description = cursor.getString(COL_WEATHER_DESC);
         descriptionView.setText(description);
