@@ -1,4 +1,4 @@
-package com.xiroid.sunshine.app;
+package com.xiroid.sunshine.app.fragment;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.xiroid.sunshine.app.R;
+import com.xiroid.sunshine.app.Utility;
 import com.xiroid.sunshine.app.data.WeatherContract;
 
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -173,11 +175,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         String low = Utility.formatTemperature(getActivity(), cursor.getDouble(COL_WEATHER_MIN_TEMP));
         highView.setText(high);
         lowView.setText(low);
-
         humidityView.setText(getActivity().getString(R.string.format_humidity, cursor.getFloat(COL_WEATHER_HUMIDITY)));
         windView.setText(Utility.getFormattedWind(getActivity(),
                 cursor.getFloat(COL_WEATHER_WIND_SPEED), cursor.getFloat(COL_WEATHER_DEGREES)));
-
         pressureView.setText(getActivity().getString(R.string.format_pressure, cursor.getFloat(COL_WEATHER_PRESSURE)));
 
         mForecastStr = String.format("%s - %s - %s/%s", dateText, description, high, low);

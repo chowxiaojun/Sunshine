@@ -1,4 +1,4 @@
-package com.xiroid.sunshine.app;
+package com.xiroid.sunshine.app.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.xiroid.sunshine.app.fragment.ForecastFragment;
+import com.xiroid.sunshine.app.R;
+import com.xiroid.sunshine.app.Utility;
 
 /**
  * {@link ForecastAdapter} exposes a list of weather forecasts

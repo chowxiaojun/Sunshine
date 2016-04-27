@@ -1,4 +1,4 @@
-package com.xiroid.sunshine.app;
+package com.xiroid.sunshine.app.activity;
 
 
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+
+import com.xiroid.sunshine.app.R;
 
 /**
  *

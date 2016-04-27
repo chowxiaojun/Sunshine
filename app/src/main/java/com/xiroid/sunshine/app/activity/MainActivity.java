@@ -1,4 +1,4 @@
-package com.xiroid.sunshine.app;
+package com.xiroid.sunshine.app.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,6 +9,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.xiroid.sunshine.app.fragment.ForecastFragment;
+import com.xiroid.sunshine.app.R;
+import com.xiroid.sunshine.app.Utility;
 
 public class MainActivity extends AppCompatActivity {
 

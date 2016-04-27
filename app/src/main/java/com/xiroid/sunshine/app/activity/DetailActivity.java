@@ -1,4 +1,4 @@
-package com.xiroid.sunshine.app;
+package com.xiroid.sunshine.app.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.xiroid.sunshine.app.R;
 
 public class DetailActivity extends AppCompatActivity {
 
