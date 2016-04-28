@@ -5,25 +5,38 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.xiroid.sunshine.app.fragment.ForecastFragment;
 import com.xiroid.sunshine.app.R;
 import com.xiroid.sunshine.app.Utility;
+import com.xiroid.sunshine.app.fragment.DetailFragment;
+import com.xiroid.sunshine.app.fragment.ForecastFragment;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String DETAILFRAGMENT_TAG = "DETAIL";
+
     private String mLocation;
+    private boolean mTwoPane = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        if (findViewById(R.id.weather_detail_container) != null) {
+            mTwoPane = true;
+            // 当设备旋转时，Fragment不会重复创建，因为Activity会重建
+            if (savedInstanceState == null) {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.add(R.id.weather_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG);
+                ft.commit();
+            }
+        } else {
+            mTwoPane = false;
+        }
     }
 
     @Override

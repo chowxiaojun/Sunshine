@@ -138,6 +138,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Intent intent = getActivity().getIntent();
+
+        if (intent == null && intent.getDataString() == null) {
+            return null;
+        }
         if (intent != null) {
             String uriStr = intent.getDataString();
             if (!TextUtils.isEmpty(uriStr)) {
