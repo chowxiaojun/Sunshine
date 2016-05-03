@@ -15,7 +15,7 @@ import com.xiroid.sunshine.app.Utility;
 import com.xiroid.sunshine.app.fragment.DetailFragment;
 import com.xiroid.sunshine.app.fragment.ForecastFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ForecastFragment.Callback {
 
     private static final String DETAILFRAGMENT_TAG = "DETAIL";
 
@@ -42,13 +42,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        String location = Utility.getPreferredLocation( this );
+        String location = Utility.getPreferredLocation(this);
         // update the location in our second pane using the fragment manager
         if (location != null && !location.equals(mLocation)) {
             ForecastFragment ff = (ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
-            if ( null != ff ) {
+            if (null != ff) {
                 ff.onLocationChanged();
             }
+
+            DetailFragment df = (DetailFragment) getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            if (null != null) {
+                df.onLocationChanged(location);
+            }
+
             mLocation = location;
         }
     }
@@ -93,6 +99,25 @@ public class MainActivity extends AppCompatActivity {
         intent.setData(geoLocation);
 
         if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onItemSelected(Uri dateUri) {
+        if (mTwoPane) {
+            Bundle args = new Bundle();
+            args.putParcelable(DetailFragment.DETAIL_URI, dateUri);
+
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.weather_detail_container, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .setData(dateUri);
             startActivity(intent);
         }
     }

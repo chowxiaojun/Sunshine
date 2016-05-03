@@ -1,6 +1,5 @@
 package com.xiroid.sunshine.app.fragment;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,7 +20,6 @@ import android.widget.ListView;
 import com.xiroid.sunshine.app.FetchWeatherTask;
 import com.xiroid.sunshine.app.R;
 import com.xiroid.sunshine.app.Utility;
-import com.xiroid.sunshine.app.activity.DetailActivity;
 import com.xiroid.sunshine.app.adapter.ForecastAdapter;
 import com.xiroid.sunshine.app.data.WeatherContract;
 
@@ -128,11 +126,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
                 if (cursor != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
-                    Intent intent = new Intent(getActivity(), DetailActivity.class);
-                    intent.setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                            locationSetting, cursor.getLong(COL_WEATHER_DATE)
-                    ));
-                    startActivity(intent);
+                    Uri dateUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                            locationSetting, cursor.getLong(COL_WEATHER_DATE));
+                    ((Callback) getActivity()).onItemSelected(dateUri);
                 }
             }
         });
@@ -171,6 +167,18 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLocationChanged( ) {
         updateWeather();
         getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+    }
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri dateUri);
     }
 }
 
