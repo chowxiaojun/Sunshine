@@ -17,4 +17,8 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="ForecastListStyle">
+        <item name="android:choiceMode">singleChoice</item>
+    </style>
+
 </resources>
