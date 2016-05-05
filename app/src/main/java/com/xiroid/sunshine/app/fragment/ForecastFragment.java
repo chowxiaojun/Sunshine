@@ -23,15 +23,15 @@ import com.xiroid.sunshine.app.Utility;
 import com.xiroid.sunshine.app.adapter.ForecastAdapter;
 import com.xiroid.sunshine.app.data.WeatherContract;
 
-import java.util.ArrayList;
-
 /**
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final String TAG = ForecastFragment.class.getSimpleName();
 
+    public static final String SELECTED_KEY = "selected_key";
+    private static final String TAG = ForecastFragment.class.getSimpleName();
     private static final int FORECAST_LOADER = 0;
+    private int mPosition = -1;
     private static final String[] FORECAST_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
             // the content provider joins the location & weather tables in the background
@@ -63,7 +63,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public static final int COL_COORD_LONG = 8;
 
     private ForecastAdapter mForecastAdapter;
-    private ArrayList<String> data = new ArrayList<String>();
+    private ListView listView;
 
     public ForecastFragment() {
     }
@@ -87,6 +87,15 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         super.onStart();
         Log.d(TAG, "onStart()");
         updateWeather();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // 当平板旋转时，当前ListView中选中项需要被保存
+        if (mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     private void updateWeather() {
@@ -116,7 +125,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -130,8 +139,13 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                             locationSetting, cursor.getLong(COL_WEATHER_DATE));
                     ((Callback) getActivity()).onItemSelected(dateUri);
                 }
+                mPosition = position;
             }
         });
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
         return rootView;
     }
 
@@ -156,6 +170,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onLoadFinished(Loader loader, Cursor cursor) {
         mForecastAdapter.swapCursor(cursor);
+        //listView.smoothScrollToPosition();
+
+        if (mPosition != ListView.INVALID_POSITION) {
+            listView.smoothScrollToPosition(mPosition);
+        }
     }
 
     @Override
