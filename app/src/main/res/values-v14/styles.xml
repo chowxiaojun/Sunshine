@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings activity theme. -->
+    <!-- https://classroom.udacity.com/nanodegrees/nd801/parts/8011345403/modules/432468910275460/lessons/1623168625/concepts/38675585760923 -->
+    <style name="SettingsTheme" parent="@android:style/Theme.Holo.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/ActionBar.V14.Sunshine.NoTitle</item>
+    </style>
+
+    <!-- Settings activity action bar styles -->
+    <style name="ActionBar.V14.Sunshine.NoTitle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/sunshine_blue</item>
+        <item name="android:height">56dp</item>
+    </style>
+</resources>

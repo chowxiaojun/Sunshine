@@ -3,15 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:minHeight="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
     android:padding="16dp"
-    android:background="@drawable/touch_selector">
+    android:background="@color/sunshine_blue">
 
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center_horizontal"
         android:orientation="vertical">
@@ -20,19 +19,28 @@
             android:id="@+id/list_item_date_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Today"></TextView>
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="Today"/>
 
         <TextView
             android:id="@+id/list_item_high_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="18℃"></TextView>
+            android:textColor="@color/white"
+            android:textSize="72sp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="18℃"/>
 
         <TextView
             android:id="@+id/list_item_low_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="8℃"></TextView>
+            android:textColor="@color/white"
+            android:textSize="36sp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="8℃"/>
     </LinearLayout>
 
     <LinearLayout
@@ -45,14 +53,17 @@
 
         <ImageView
             android:id="@+id/list_item_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
 
         <TextView
             android:id="@+id/list_item_forecast_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Clear"></TextView>
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="Clear"/>
     </LinearLayout>
 
 </LinearLayout>
