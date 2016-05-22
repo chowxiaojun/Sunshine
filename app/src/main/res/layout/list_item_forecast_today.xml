@@ -12,7 +12,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center_horizontal"
+        android:layout_marginLeft="60dp"
+        android:gravity="center_vertical"
         android:orientation="vertical">
 
         <TextView
@@ -30,7 +31,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:textSize="72sp"
-            android:fontFamily="sans-serif-condensed"
+            android:fontFamily="sans-serif-light"
             android:text="18℃"/>
 
         <TextView
@@ -39,7 +40,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:textSize="36sp"
-            android:fontFamily="sans-serif-condensed"
+            android:fontFamily="sans-serif-light"
             android:text="8℃"/>
     </LinearLayout>
 
