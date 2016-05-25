@@ -33,7 +33,7 @@
             android:textColor="@color/black"
             android:text="@string/tomorrow"
             android:fontFamily="sans-serif-condensed"
-            android:textSize="?android:textAppearanceLarge"/>
+            android:textSize="22sp"/>
 
         <TextView
             android:id="@+id/list_item_forecast_textview"
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:fontFamily="sans-serif-condensed"
-            android:textSize="?android:textAppearanceSmall"
+            android:textSize="14sp"
             android:text="Clear" />
 
     </LinearLayout>
@@ -60,7 +60,7 @@
             android:text="18"
             android:textColor="@color/black"
             android:fontFamily="sans-serif-condensed"
-            android:textSize="?android:textAppearanceLarge" />
+            android:textSize="22sp" />
 
         <TextView
             android:id="@+id/list_item_low_textview"
@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:fontFamily="sans-serif-condensed"
-            android:textSize="?android:textAppearanceSmall"
+            android:textSize="14sp"
             android:text="8" />
     </LinearLayout>
 

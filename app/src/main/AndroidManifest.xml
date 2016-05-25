@@ -12,8 +12,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.MainActivity"
-            android:theme="@style/ForecastTheme"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:theme="@style/ForecastTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,18 +31,20 @@
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/SettingsTheme"
-            android:parentActivityName=".activity.MainActivity">
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/SettingsTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activity.MainActivity" />
         </activity>
-        
-        <provider
-            android:authorities="com.xiroid.sunshine.app"
-            android:name=".data.WeatherProvider">
 
-        </provider>
+        <provider
+            android:name=".data.WeatherProvider"
+            android:authorities="com.xiroid.sunshine.app"></provider>
+
+        <service
+            android:name=".service.SunshineService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

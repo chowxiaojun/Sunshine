@@ -1,5 +1,6 @@
 package com.xiroid.sunshine.app.fragment;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,11 +18,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.xiroid.sunshine.app.FetchWeatherTask;
 import com.xiroid.sunshine.app.R;
 import com.xiroid.sunshine.app.Utility;
 import com.xiroid.sunshine.app.adapter.ForecastAdapter;
 import com.xiroid.sunshine.app.data.WeatherContract;
+import com.xiroid.sunshine.app.service.SunshineService;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -102,9 +103,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void updateWeather() {
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
-        String location = Utility.getPreferredLocation(getActivity());
-        weatherTask.execute(location);
+//        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
+//        String location = Utility.getPreferredLocation(getActivity());
+//        weatherTask.execute(location);
+
+        Intent intent = new Intent(getActivity(), SunshineService.class);
+        intent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,
+                Utility.getPreferredLocation(getActivity()));
+        getActivity().startService(intent);
     }
 
     @Override
