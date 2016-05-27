@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.xiroid.sunshine.app">
 
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -40,11 +41,39 @@
 
         <provider
             android:name=".data.WeatherProvider"
-            android:authorities="com.xiroid.sunshine.app"></provider>
+            android:authorities="@string/content_authority"
+            android:exported="false"
+            android:syncable="true" />
 
         <service
             android:name=".service.SunshineService"
-            android:exported="false"></service>
+            android:exported="false"/>
+
+        <receiver
+            android:name=".service.SunshineService$AlarmReceiver"
+            android:enabled="true"/>
+
+        <service
+            android:name=".sync.SunshineAuthenticatorService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+
+        <service
+            android:name=".sync.SunshineSyncService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
     </application>
 
 </manifest>
