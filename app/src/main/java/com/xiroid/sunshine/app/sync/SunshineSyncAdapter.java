@@ -49,7 +49,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(TAG, "onPerformSync Called.");
+        Log.d(TAG, "onPerformSync Called." + System.currentTimeMillis());
         // 传入城市的 zip code
         String locationQuery = Utility.getPreferredLocation(getContext());
         if (TextUtils.isEmpty(locationQuery)) {
