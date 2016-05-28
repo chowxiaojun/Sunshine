@@ -363,13 +363,18 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             // 添加天气数据到数据库中，批量插入
-            if (cVVector.size() > 0) {
+            if ( cVVector.size() > 0 ) {
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
                 getContext().getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
-            }
 
-            notifyWeather();
+                // delete old data so we don't build up an endless history
+                getContext().getContentResolver().delete(WeatherContract.WeatherEntry.CONTENT_URI,
+                        WeatherContract.WeatherEntry.COLUMN_DATE + " <= ?",
+                        new String[] {Long.toString(dayTime.setJulianDay(julianStartDay-1))});
+
+                notifyWeather();
+            }
 
             // 按日期升序
             String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
@@ -453,7 +458,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         String enableNotificationsKey = context.getString(R.string.pref_enable_notifications_key);
 
         // 如果用户关闭了通知，直接返回
-        if (!prefs.getBoolean(enableNotificationsKey, true)) {
+        if (!prefs.getBoolean(enableNotificationsKey,
+                Boolean.valueOf(context.getString(R.string.pref_enable_notifications_default)))) {
             return;
         }
 
@@ -494,7 +500,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                     NotificationCompat.Builder mBuilder =
                             new NotificationCompat.Builder(context)
                                     .setSmallIcon(iconId)
-                                    .setContentTitle("Weather notification")
+                                    .setContentTitle(title)
                                     .setContentText(contentText);
                     // Creates an explicit intent for an Activity in your app
                     Intent resultIntent = new Intent(context, MainActivity.class);

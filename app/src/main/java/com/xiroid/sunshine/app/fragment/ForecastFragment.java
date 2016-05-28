@@ -1,5 +1,6 @@
 package com.xiroid.sunshine.app.fragment;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -111,10 +112,37 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_refresh) {
+        if (item.getItemId() == R.id.action_map) {
+            openPreferredLocationInMap();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    private void openPreferredLocationInMap() {
+        // Using the URI scheme for showing a location found on a map.  This super-handy
+        // intent can is detailed in the "Common Intents" page of Android's developer site:
+        // http://developer.android.com/guide/components/intents-common.html#Maps
+        if (null != mForecastAdapter) {
+            Cursor c = mForecastAdapter.getCursor();
+            if (null != c) {
+                c.moveToPosition(0);
+                String posLat = c.getString(COL_COORD_LAT);
+                String posLong = c.getString(COL_COORD_LONG);
+                Uri geoLocation = Uri.parse("geo:" + posLat + "," + posLong);
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(geoLocation);
+
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+                    Log.d(TAG, "Couldn't call " + geoLocation.toString() + ", no receiving apps installed!");
+                }
+            }
+
+        }
     }
 
     @Override

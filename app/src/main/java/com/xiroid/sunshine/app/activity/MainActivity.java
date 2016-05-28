@@ -1,10 +1,8 @@
 package com.xiroid.sunshine.app.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -67,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             }
 
             DetailFragment df = (DetailFragment) getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
-            if (null != null) {
+            if (null != df) {
                 df.onLocationChanged(location);
             }
 
@@ -89,33 +87,8 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             case R.id.action_settings:
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
-            case R.id.action_map:
-                openPreferredLocationInMap();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void openPreferredLocationInMap() {
-        SharedPreferences sharedPrefs =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        String location = sharedPrefs.getString(
-                getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
-
-        // Using the URI scheme for showing a location found on a map.  This super-handy
-        // intent can is detailed in the "Common Intents" page of Android's developer site:
-        // http://developer.android.com/guide/components/intents-common.html#Maps
-        Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
-                .appendQueryParameter("q", location)
-                .build();
-
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(geoLocation);
-
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
         }
     }
 
