@@ -14,6 +14,7 @@ import com.xiroid.sunshine.app.R;
 import com.xiroid.sunshine.app.Utility;
 import com.xiroid.sunshine.app.fragment.DetailFragment;
 import com.xiroid.sunshine.app.fragment.ForecastFragment;
+import com.xiroid.sunshine.app.sync.SunshineSyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements ForecastFragment.Callback {
 
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
         if (forecastFragment != null) {
             forecastFragment.setUseTodayLayout(!mTwoPane);
         }
+
+        SunshineSyncAdapter.initializeSyncAdapter(getApplicationContext());
     }
 
     @Override
