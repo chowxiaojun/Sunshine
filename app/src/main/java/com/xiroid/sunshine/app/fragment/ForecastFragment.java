@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.xiroid.sunshine.app.R;
 import com.xiroid.sunshine.app.Utility;
@@ -206,6 +207,25 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         if (mPosition != ListView.INVALID_POSITION) {
             listView.smoothScrollToPosition(mPosition);
+        }
+
+        // 若cursor为null，或者无数据
+        updateEmptyView();
+    }
+
+    /**
+     * 确认是否为网络问题
+     */
+    private void updateEmptyView() {
+        if (mForecastAdapter.getCount() <= 0) {
+            if (getView() != null) {
+                TextView txt = (TextView) getView().findViewById(R.id.list_forecast_empty);
+                int message = R.string.list_forecast_empty;
+                if (!Utility.isNetworkAvailable(getActivity())) {
+                    message = R.string.list_forecast_empty_no_network;
+                }
+                txt.setText(message);
+            }
         }
     }
 
