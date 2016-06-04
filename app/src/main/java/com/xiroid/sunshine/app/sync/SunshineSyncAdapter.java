@@ -15,7 +15,6 @@ import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -374,27 +373,6 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                         new String[] {Long.toString(dayTime.setJulianDay(julianStartDay-1))});
 
                 notifyWeather();
-            }
-
-            // 按日期升序
-            String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-            Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-                    locationSetting, System.currentTimeMillis());
-
-            Cursor cur = getContext().getContentResolver().query(weatherForLocationUri,
-                    null, null, null, sortOrder);
-
-            if (cur != null) {
-                cVVector = new Vector<ContentValues>(cur.getCount());
-                if (cur.moveToFirst()) {
-                    do {
-                        ContentValues cv = new ContentValues();
-                        DatabaseUtils.cursorRowToContentValues(cur, cv);
-                        cVVector.add(cv);
-                    } while (cur.moveToNext());
-                }
-
-                Log.d(TAG, "FetchWeather Complete. " + cVVector.size() + " Inserted");
             }
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage(), e);

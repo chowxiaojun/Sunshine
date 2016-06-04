@@ -154,6 +154,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
         listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        View mEmptyView = rootView.findViewById(R.id.list_forecast_empty);
+        listView.setEmptyView(mEmptyView); // set the view to show if the adapter is empty
         listView.setAdapter(mForecastAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -181,6 +183,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "onCreateLoader");
         String locationSetting = Utility.getPreferredLocation(getActivity());
 
         // Sort order:  Ascending, by date.
@@ -198,6 +201,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader loader, Cursor cursor) {
+        Log.d(TAG, "onLoadFinished");
         mForecastAdapter.swapCursor(cursor);
 
         if (mPosition != ListView.INVALID_POSITION) {
@@ -207,6 +211,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoaderReset(Loader loader) {
+        Log.d(TAG, "onLoaderReset");
         mForecastAdapter.swapCursor(null);
     }
 

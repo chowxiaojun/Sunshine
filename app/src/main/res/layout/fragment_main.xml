@@ -10,7 +10,14 @@
         android:id="@+id/listview_forecast"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
     </ListView>
+
+    <TextView
+        android:id="@+id/list_forecast_empty"
+        android:text="@string/list_forecast_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:padding="16dp"/>
 
 </FrameLayout>

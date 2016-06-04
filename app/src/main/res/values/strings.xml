@@ -34,7 +34,7 @@
 
     <string name="tomorrow">明天</string>
 
-
+    <string name="list_forecast_empty">没有可用的天气信息</string>
     <!-- xliff tags: https://developer.android.com/distribute/tools/localization-checklist.html -->
     <!-- Formatting strings:http://developer.android.com/guide/topics/resources/string-resource.html#FormattingAndStyling -->
     <!-- Date format for displaying day of week and date (i.e. Mon Jun 1) [CHAR LIMIT=20] -->
