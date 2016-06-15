@@ -14,7 +14,7 @@
 
     <TextView
         android:id="@+id/list_forecast_empty"
-        android:text="@string/list_forecast_empty"
+        android:text="@string/empty_forecast_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_horizontal"

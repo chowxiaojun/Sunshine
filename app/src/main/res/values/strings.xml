@@ -29,13 +29,17 @@
     <string name="pref_enable_notifications_false">Not Enabled</string>
     <string name="pref_enable_notifications_default" translatable="false">true</string>
 
+    <string name="pref_location_status_key">location_status_key</string>
+
     <string name="today">今天</string>
 
 
     <string name="tomorrow">明天</string>
 
-    <string name="list_forecast_empty">没有可用的天气信息</string>
-    <string name="list_forecast_empty_no_network">请检查您的网络是否正常</string>
+    <string name="empty_forecast_list">没有可用的天气信息</string>
+    <string name="empty_forecast_list_no_network">没有可用的天气信息，请检查您的网络是否正常</string>
+    <string name="empty_forecast_list_server_down">没有可用的天气信息，服务器没有返回数据</string>
+    <string name="empty_forecast_list_server_error">没有可用的天气信息，服务器返回数据异常，请升级应用版本</string>
     <!-- xliff tags: https://developer.android.com/distribute/tools/localization-checklist.html -->
     <!-- Formatting strings:http://developer.android.com/guide/topics/resources/string-resource.html#FormattingAndStyling -->
     <!-- Date format for displaying day of week and date (i.e. Mon Jun 1) [CHAR LIMIT=20] -->
