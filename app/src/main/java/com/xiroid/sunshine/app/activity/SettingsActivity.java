@@ -10,6 +10,8 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import com.xiroid.sunshine.app.R;
+import com.xiroid.sunshine.app.Utility;
+import com.xiroid.sunshine.app.sync.SunshineSyncAdapter;
 
 /**
  *
@@ -51,6 +53,10 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         String stringValue = newValue.toString();
+        if (preference.getKey().equals(getString(R.string.pref_location_key))) {
+            Utility.resetLocationStatus(getApplicationContext());
+            SunshineSyncAdapter.syncImmediately(getApplicationContext());
+        }
 
         if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in

@@ -40,6 +40,7 @@
     <string name="empty_forecast_list_no_network">没有可用的天气信息，请检查您的网络是否正常</string>
     <string name="empty_forecast_list_server_down">没有可用的天气信息，服务器没有返回数据</string>
     <string name="empty_forecast_list_server_error">没有可用的天气信息，服务器返回数据异常，请升级应用版本</string>
+    <string name="empty_forecast_list_invalid_location">没有可用的天气信息，当前位置设置有误</string>
     <!-- xliff tags: https://developer.android.com/distribute/tools/localization-checklist.html -->
     <!-- Formatting strings:http://developer.android.com/guide/topics/resources/string-resource.html#FormattingAndStyling -->
     <!-- Date format for displaying day of week and date (i.e. Mon Jun 1) [CHAR LIMIT=20] -->
