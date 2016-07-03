@@ -77,4 +77,6 @@
 
     <string name="content_authority">com.xiroid.sunshine.app</string>
     <string name="sync_account_type">sunshine.xiroid.com</string>
+
+    <!-- Format for retrieving art from an external source [CHAR LIMIT=NONE] -->
 </resources>

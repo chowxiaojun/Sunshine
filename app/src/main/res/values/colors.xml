@@ -6,4 +6,9 @@
     <color name="black">#000000</color>
     <color name="grey">#cccccc</color>
     <color name="sunshine_light_blue">#ff64c2f4</color>
+
+    <color name="primary">#03A9F4</color>
+    <color name="primary_dark">#0288D1</color>
+    <color name="primary_light">#B3E5FC</color>
+    <color name="accent">#FFD740</color>
 </resources>
