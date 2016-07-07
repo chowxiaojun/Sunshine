@@ -10,15 +10,16 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="?attr/listPreferredItemHeight"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_gravity="center_horizontal"
             android:src="@drawable/ic_logo"
-            android:scaleType="center"/>
-
+            android:scaleType="center"
+            android:background="@color/primary"/>
     </android.support.v7.widget.Toolbar>
 
     <include layout="@layout/content_main" />

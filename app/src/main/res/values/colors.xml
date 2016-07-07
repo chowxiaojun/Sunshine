@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="sunshine_blue">#FF1CA8F4</color>
-    <color name="sunshine_dark_blue">#0288D1</color>
+
     <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
     <color name="grey">#cccccc</color>
-    <color name="sunshine_light_blue">#ff64c2f4</color>
+    <color name="grey_700">#646464</color>
+    <color name="black">#000000</color>
 
     <!-- using the "Light Blue" Material Palette -->
     <color name="primary">#03A9F4</color>  <!-- 500 -->
@@ -15,6 +14,13 @@
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#727272</color>
 
+    <!-- our detail accent colors -->
     <color name="detail_accent_pane_background">#455A64</color>
     <color name="detail_accent_label">#90A4AE</color>
+
+    <!-- the activated state color -->
+    <color name="activated">#E0E0E0</color>
+
+    <!-- the color used for the low temperature in the forecast list -->
+    <color name="forecast_low_text">#607D8B</color>
 </resources>
